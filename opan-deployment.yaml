@@ -1,0 +1,36 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: internal-opan
+spec:
+  type: NodePort
+  ports:
+  - port: 8080
+    protocol: TCP
+  selector:
+    app: opan
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: opan
+spec:
+  template:
+    metadata:
+      labels:
+        app: opan
+    spec:
+      containers:
+      - image: gcr.io/graphic-iridium-144308/opan:latest
+        name: opan
+        ports:
+        - containerPort: 8080
+        volumeMounts:
+        - name: opan-persistent-storage
+          mountPath: /data
+      volumes:
+        - name: opan-persistent-storage
+          gcePersistentDisk:
+            pdName: opan-disk
+            fsType: ext4
